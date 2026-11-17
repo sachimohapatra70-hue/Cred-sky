@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SKY CRED — The Sky's Credit Score</title>
+  <meta name="description" content="SKY CRED is a playful weather app that reports the sky's 'credit score': live weather, AQI, dynamic sky themes and weather personalities for any city." />
+  <meta name="theme-color" content="#2e8ef5" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>☁️</text></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-theme="clear-day">
+  <div class="sky-backdrop" aria-hidden="true"></div>
+
+  <main class="page">
+    <header class="brand">
+      <div class="logo" aria-hidden="true">☁️</div>
+      <div>
+        <h1>SKY CRED</h1>
+        <p class="tagline">The sky's credit score · playful weather, zero finance</p>
+      </div>
+    </header>
+
+    <section class="lookup" aria-label="City lookup">
+      <form id="search-form" autocomplete="off">
+        <input id="city-input" type="text" placeholder="Search any city… e.g. Mumbai, Tokyo, Lisbon" aria-label="Search for a city" />
+        <button type="submit" id="search-btn">Check Sky</button>
+      </form>
+      <div class="popular" id="popular-cities" aria-label="Popular cities"></div>
+      <p class="hint" id="search-hint">Live data via WeatherAPI.com — fresh sky report on every search.</p>
+    </section>
+
+    <section id="status" class="status" aria-live="polite" hidden>
+      <div class="spinner" aria-hidden="true"></div>
+      <p id="status-text">Pulling the sky's credit report…</p>
+    </section>
+
+    <section id="error" class="error-card" hidden>
+      <div class="error-emoji" aria-hidden="true">🚫</div>
+      <h2 id="error-title">Something went wrong</h2>
+      <p id="error-detail"></p>
+      <button id="retry-btn" type="button">Try again</button>
+    </section>
+
+    <section id="result" hidden>
+      <article class="card main-card">
+        <div class="loc-row">
+          <h2 id="w-location">—</h2>
+          <span class="city-chip" id="city-chip" title="City signature">📍</span>
+        </div>
+        <p class="local-time" id="w-localtime">—</p>
+
+        <div class="hero">
+          <img id="w-icon" alt="Weather condition icon" width="88" height="88" />
+          <div class="hero-temp">
+            <span id="w-temp" class="temp">—</span><span class="unit">°C</span>
+          </div>
+          <div class="hero-cond">
+            <p id="w-condition">—</p>
+            <p class="feels">Feels like <span id="w-feels">—</span>°C</p>
+          </div>
+        </div>
+
+        <div class="score-row">
+          <div class="score-badge">
+            <span class="score-cc" aria-hidden="true">💳</span>
+            <span id="sky-score" class="score-num">—</span>
+            <span class="score-label">SKY SCORE / 900</span>
+            <span id="score-band" class="score-band">—</span>
+          </div>
+          <div class="personality">
+            <p class="p-title" id="p-emoji-name">—</p>
+            <p class="p-desc" id="p-desc">—</p>
+          </div>
+        </div>
+
+        <p class="disclaimer">A playful weather rating — not a financial credit score.</p>
+      </article>
+
+      <article class="card">
+        <h3>Conditions Report</h3>
+        <div class="grid" id="metrics-grid"></div>
+      </article>
+
+      <article class="card">
+        <h3>Air Quality (AQI)</h3>
+        <div id="aqi-content"></div>
+      </article>
+
+      <article class="card">
+        <div class="json-head">
+          <h3>Weather Data Inspector</h3>
+          <div class="tabs">
+            <button class="tab active" id="tab-formatted" type="button">Formatted JSON</button>
+            <button class="tab" id="tab-raw" type="button">Raw JSON</button>
+            <button class="copy-btn" id="copy-json" type="button">Copy</button>
+          </div>
+        </div>
+        <pre id="json-view" class="json-view"></pre>
+      </article>
+    </section>
+
+    <footer class="foot">
+      <p>
+        Live data by WeatherAPI.com
+        <button id="refresh-btn" class="refresh-btn" type="button">↻ Refresh</button>
+      </p>
+      <p class="muted">SKY CRED rates the sky, not your finances. No credit checks were harmed.</p>
+    </footer>
+
+    <noscript><p style="text-align:center;font-weight:700">SKY CRED needs JavaScript to fetch live weather.</p></noscript>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

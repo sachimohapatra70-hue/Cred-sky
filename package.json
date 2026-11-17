@@ -1,0 +1,13 @@
+{
+  "name": "sky-cred",
+  "version": "1.0.0",
+  "private": true,
+  "description": "SKY CRED - a playful weather web app: the sky's credit score. Static front end + Vercel serverless proxy for WeatherAPI.com.",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel deploy --prod"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
