@@ -1,8 +1,8 @@
 {
-  "name": "sky-cred",
-  "version": "1.0.0",
+  "name": "skysignal",
+  "version": "1.1.0",
   "private": true,
-  "description": "SKY CRED - a playful weather web app: the sky's credit score. Static front end + Vercel serverless proxy for WeatherAPI.com.",
+  "description": "SkySignal - live animated sky weather app: rain, snow, sun, moon & stars, season option, AQI and weather personalities. Static front end + Vercel serverless proxy for WeatherAPI.com.",
   "scripts": {
     "dev": "vercel dev",
     "deploy": "vercel deploy --prod"

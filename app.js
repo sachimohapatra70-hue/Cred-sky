@@ -56,9 +56,21 @@ const AQI_LEVELS = [
 
 const state = {
   lastQuery: DEFAULT_CITY,
+  lastData: null,
+  season: 'auto',
   raw: '',
   pretty: '',
   activeTab: 'formatted',
+};
+
+/* Season option — Auto detects from the city's latitude + today's month */
+const SEASON_META = {
+  auto:    { emoji: '✨', name: 'Auto' },
+  spring:  { emoji: '🌸', name: 'Spring' },
+  summer:  { emoji: '☀️', name: 'Summer' },
+  monsoon: { emoji: '🌧️', name: 'Monsoon' },
+  autumn:  { emoji: '🍂', name: 'Autumn' },
+  winter:  { emoji: '❄️', name: 'Winter' },
 };
 
 /* ---------- tiny helpers ---------- */
@@ -169,7 +181,7 @@ function renderWeather(data, queried) {
 
   document.body.dataset.theme = themeFor(cur);
   document.documentElement.style.setProperty('--city-hue', String(cityHue(loc.name || queried)));
-  document.title = `${loc.name || queried} — SKY CRED`;
+  document.title = `${loc.name || queried} — SkySignal`;
 
   $('w-location').textContent = place || queried;
   $('city-chip').textContent = popularEmoji(loc.name || queried);
@@ -213,6 +225,9 @@ function renderWeather(data, queried) {
 
   renderAqi(cur.air_quality);
   renderJson();
+
+  state.lastData = data;
+  applyScene();
 
   $('result').hidden = false;
   $('error').hidden = true;
@@ -276,7 +291,7 @@ function showError(title, detail) {
 async function fetchWeather(city) {
   const target = String(city || '').trim() || DEFAULT_CITY;
   state.lastQuery = target;
-  showStatus(`Pulling the sky's credit report for ${target}…`);
+  showStatus(`Fetching the live sky signal for ${target}…`);
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 12000);
@@ -318,6 +333,71 @@ async function fetchWeather(city) {
   }
 }
 
+/* ---------- season + live sky scene ---------- */
+
+function autoSeason(lat) {
+  const m = new Date().getMonth() + 1; // 1..12
+  const south = lat != null && lat < 0;
+  const tropical = lat != null && Math.abs(lat) <= 35;
+  let s;
+  if (m >= 6 && m <= 9) s = tropical && !south ? 'monsoon' : 'summer';
+  else if (m === 12 || m <= 2) s = 'winter';
+  else if (m <= 5) s = 'spring';
+  else s = 'autumn';
+  if (south) {
+    if (s === 'winter') s = 'summer';
+    else if (s === 'summer') s = 'winter';
+    else if (s === 'spring') s = 'autumn';
+    else if (s === 'autumn') s = 'spring';
+    if (tropical && (m === 12 || m <= 3)) s = 'monsoon';
+  }
+  return s;
+}
+
+function buildSeasonChips() {
+  $('season-chips').innerHTML = Object.keys(SEASON_META).map(
+    (id) => `<button type="button" class="chip season-chip" data-season="${id}" title="${esc(SEASON_META[id].name)} season">${SEASON_META[id].emoji} ${esc(SEASON_META[id].name)}</button>`
+  ).join('');
+  syncSeasonChips();
+}
+
+function syncSeasonChips() {
+  document.querySelectorAll('#season-chips .chip').forEach((chip) => {
+    chip.classList.toggle('active', chip.dataset.season === state.season);
+  });
+}
+
+/* Map live weather to an animated scene for the canvas */
+function sceneFor(cur) {
+  const code = cur.condition.code;
+  const night = cur.is_day !== 1;
+  if (has(CODE_GROUPS.thunder, code)) return { kind: 'thunder', night, intensity: 1 };
+  if (has(CODE_GROUPS.snow, code)) return { kind: 'snow', night, intensity: Math.min(1, 0.4 + (cur.precip_mm || 0) / 3) };
+  if (has(CODE_GROUPS.rain, code)) {
+    const light = has([1072, 1150, 1153, 1180, 1198], code);
+    return { kind: 'rain', night, intensity: light ? 0.35 : Math.min(1, 0.55 + (cur.precip_mm || 0) / 6) };
+  }
+  if (has(CODE_GROUPS.fog, code)) return { kind: 'fog', night, intensity: 0.6 };
+  if (code === 1003) return { kind: 'partly', night, intensity: 0.5 };
+  if (has(CODE_GROUPS.cloudy, code)) return { kind: 'clouds', night, intensity: 0.7 };
+  return { kind: 'clear', night, intensity: 0.5 };
+}
+
+function applyScene() {
+  const eff = state.season === 'auto'
+    ? autoSeason(state.lastData && state.lastData.location ? state.lastData.location.lat : null)
+    : state.season;
+  document.body.dataset.season = eff;
+  const meta = SEASON_META[eff] || SEASON_META.auto;
+  const note = $('season-note');
+  if (note) {
+    note.textContent = `Season: ${meta.emoji} ${meta.name} · ${state.season === 'auto' ? 'auto-detected' : 'picked by you'}`;
+  }
+  if (state.lastData && state.lastData.current) {
+    Sky.setScene(Object.assign(sceneFor(state.lastData.current), { accent: eff === 'auto' ? null : eff }));
+  }
+}
+
 /* ---------- events + init ---------- */
 
 function buildPopular() {
@@ -351,6 +431,15 @@ function wireEvents() {
   $('tab-formatted').addEventListener('click', () => { state.activeTab = 'formatted'; renderJson(); });
   $('tab-raw').addEventListener('click', () => { state.activeTab = 'raw'; renderJson(); });
 
+  $('season-chips').addEventListener('click', (e) => {
+    const chip = e.target.closest('.chip');
+    if (!chip) return;
+    state.season = chip.dataset.season;
+    try { localStorage.setItem('skysignal.season', state.season); } catch (err) { /* storage unavailable */ }
+    syncSeasonChips();
+    applyScene();
+  });
+
   $('copy-json').addEventListener('click', async () => {
     const text = state.activeTab === 'raw' ? state.raw : state.pretty;
     if (!text) return;
@@ -372,7 +461,13 @@ function wireEvents() {
 }
 
 function init() {
+  Sky.mount($('sky-canvas'));
+  try {
+    const saved = localStorage.getItem('skysignal.season');
+    if (saved && SEASON_META[saved]) state.season = saved;
+  } catch (e) { /* storage unavailable */ }
   buildPopular();
+  buildSeasonChips();
   wireEvents();
   fetchWeather(DEFAULT_CITY); // Mumbai loads automatically on launch
 }

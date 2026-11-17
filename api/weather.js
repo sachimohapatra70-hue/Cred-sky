@@ -1,5 +1,5 @@
 /**
- * SKY CRED - weather proxy
+ * SkySignal - weather proxy
  * Vercel serverless function. Keeps WEATHER_API_KEY server-side only.
  *
  * GET /api/weather?q=<city>   (defaults to Mumbai)

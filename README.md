@@ -1,19 +1,32 @@
-# ☁️ SKY CRED — The Sky's Credit Score
+# 📡 SkySignal — Live Sky Vibes
 
-A playful weather web app that rates the sky's "credit score": live weather data,
-dynamic sky themes, city-specific accent colors, AQI, and fun weather personalities
-like **Perfect Day**, **Rain Check**, and **Sun Alert**.
+A playful weather web app that shows the sky the way it actually looks: **live
+animated backgrounds** (falling rain, drifting snow, sun with rays, moon +
+twinkling stars, clouds, fog, lightning), a **season option**, city-specific
+sky colors, AQI, and fun weather personalities like **Perfect Day**,
+**Rain Check**, and **Sun Alert**.
 
-> SKY CRED is a weather metaphor — it is **not** a financial credit score.
+> The SkyScore badge is a playful weather rating — it is **not** a financial credit score.
 
 ## Live features
 
 - **Mumbai loads automatically on launch** (default query), fresh data on every search.
 - **City search** for any city worldwide ("City, Country" helps disambiguate).
 - **10 Popular City shortcuts**: Mumbai, Delhi, Bengaluru, Kolkata, Chennai, Hyderabad, Pune, London, New York, Tokyo.
+- **Live animated sky** (canvas, zero dependencies), driven by the real weather:
+  - 🌧️ **Rain** → falling raindrops (heavier rain = denser downpour)
+  - ❄️ **Snow** → drifting snowflakes
+  - ⛈️ **Thunder** → dark clouds, heavy rain, lightning flashes
+  - 🌫️ **Fog** → rolling mist
+  - ☀️ **Day sun** → glowing sun with slowly rotating rays (partly cloudy → sun + drifting clouds)
+  - 🌙 **Night** → moon + twinkling stars, occasional shooting star (stars stay faintly visible through clouds/rain)
+- **Season option** (✨ Auto / 🌸 Spring / ☀️ Summer / 🌧️ Monsoon / 🍂 Autumn / ❄️ Winter):
+  - Auto detects the season from the city's latitude + today's month (northern/southern hemisphere aware, monsoon for tropical belts).
+  - Your pick tints the sky gradient and adds seasonal particles (winter flurry, monsoon drizzle, autumn leaves, spring petals) whenever the real weather is calm.
+  - Choice is remembered in `localStorage`.
 - **Current conditions**: temperature, feels-like, condition text + icon, humidity, wind (speed + direction), UV index, pressure, visibility, precipitation, cloud cover.
 - **AQI panel** (PM2.5 / PM10, US EPA scale approximation) — shown only when the API provides air quality data.
-- **SKY SCORE (300–900)** — a playful, deterministic rating computed from temperature comfort, UV, wind, humidity, precipitation and air quality. Higher = friendlier sky.
+- **SkyScore (300–900)** — a playful, deterministic rating computed from temperature comfort, UV, wind, humidity, precipitation and air quality.
 - **Weather personalities** with defined rules:
   | Personality | Rule (checked in order) |
   |---|---|
@@ -27,8 +40,9 @@ like **Perfect Day**, **Rain Check**, and **Sun Alert**.
   | Humid Haze | temp ≥ 27°C and humidity > 75% |
   | Balanced Day | everything else (default) |
 - **Dynamic visual themes** (7 gradients) driven by weather condition + day/night, plus a **deterministic city signature color** (hue hashed from the city name).
-- **Weather Data Inspector**: Formatted JSON / Raw JSON tabs + Copy. Both views render the same underlying API response (the serverless proxy passes the upstream body through untouched).
+- **Weather Data Inspector**: Formatted JSON / Raw JSON tabs + Copy. Both views render the same underlying API response.
 - **Handled states**: loading, city-not-found, API key/rate-limit errors, network failures, missing AQI, request timeout.
+- Accessibility: respects `prefers-reduced-motion` (static sky), particles pause when the tab is hidden.
 
 ## Architecture
 
@@ -36,8 +50,9 @@ like **Perfect Day**, **Rain Check**, and **Sun Alert**.
 sky-cred/
 ├── api/weather.js      # Vercel serverless function — proxies WeatherAPI.com (key stays server-side)
 ├── index.html          # Single-page front end
-├── styles.css          # Weather themes + responsive layout
-├── app.js              # Rendering, personality/score rules, JSON inspector
+├── styles.css          # Weather/season themes + responsive layout
+├── sky.js              # Animated sky canvas engine (rain, snow, sun, moon, stars, clouds, fog, lightning)
+├── app.js              # Rendering, personality/score rules, season logic, JSON inspector
 └── .env.example        # Template for the local .env file
 ```
 
@@ -57,12 +72,12 @@ vercel dev                 # http://localhost:3000
 ## Deployment (Vercel)
 
 1. Push this repo to GitHub.
-2. Create a Vercel project and add the environment variable:
+2. Vercel project: add the environment variable
    - `WEATHER_API_KEY` = your WeatherAPI.com key (all environments)
 3. Deploy (`vercel deploy --prod`) or connect the GitHub repo for auto-deploys on every push to `main`.
 
 ## Credits & disclaimer
 
 - Weather data by [WeatherAPI.com](https://www.weatherapi.com/).
-- SKY SCORE is a playful weather rating, not a financial score and not safety guidance.
+- SkyScore is a playful weather rating, not a financial score and not safety guidance.
   Always confirm severe weather with official sources.

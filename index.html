@@ -3,24 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SKY CRED — The Sky's Credit Score</title>
-  <meta name="description" content="SKY CRED is a playful weather app that reports the sky's 'credit score': live weather, AQI, dynamic sky themes and weather personalities for any city." />
+  <title>SkySignal — Live Sky Vibes & Weather Personalities</title>
+  <meta name="description" content="SkySignal is a playful weather app with live animated skies: rain, snow, sun, moon and stars, a season option, AQI and fun weather personalities for any city." />
   <meta name="theme-color" content="#2e8ef5" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>☁️</text></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='88'>📡</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body data-theme="clear-day">
+<body data-theme="clear-day" data-season="auto">
   <div class="sky-backdrop" aria-hidden="true"></div>
+  <canvas id="sky-canvas" aria-hidden="true"></canvas>
 
   <main class="page">
     <header class="brand">
-      <div class="logo" aria-hidden="true">☁️</div>
+      <div class="logo" aria-hidden="true">📡</div>
       <div>
-        <h1>SKY CRED</h1>
-        <p class="tagline">The sky's credit score · playful weather, zero finance</p>
+        <h1>SkySignal</h1>
+        <p class="tagline">Live sky vibes · playful weather, zero finance</p>
       </div>
     </header>
 
@@ -30,12 +31,18 @@
         <button type="submit" id="search-btn">Check Sky</button>
       </form>
       <div class="popular" id="popular-cities" aria-label="Popular cities"></div>
-      <p class="hint" id="search-hint">Live data via WeatherAPI.com — fresh sky report on every search.</p>
+
+      <div class="season-row">
+        <span class="season-note" id="season-note">Season: ✨ Auto</span>
+        <div class="popular" id="season-chips" aria-label="Season option"></div>
+      </div>
+
+      <p class="hint" id="search-hint">Live data via WeatherAPI.com — fresh sky signal on every search.</p>
     </section>
 
     <section id="status" class="status" aria-live="polite" hidden>
       <div class="spinner" aria-hidden="true"></div>
-      <p id="status-text">Pulling the sky's credit report…</p>
+      <p id="status-text">Fetching the live sky signal…</p>
     </section>
 
     <section id="error" class="error-card" hidden>
@@ -68,7 +75,7 @@
           <div class="score-badge">
             <span class="score-cc" aria-hidden="true">💳</span>
             <span id="sky-score" class="score-num">—</span>
-            <span class="score-label">SKY SCORE / 900</span>
+            <span class="score-label">SKYSCORE / 900</span>
             <span id="score-band" class="score-band">—</span>
           </div>
           <div class="personality">
@@ -108,12 +115,13 @@
         Live data by WeatherAPI.com
         <button id="refresh-btn" class="refresh-btn" type="button">↻ Refresh</button>
       </p>
-      <p class="muted">SKY CRED rates the sky, not your finances. No credit checks were harmed.</p>
+      <p class="muted">SkySignal rates the sky, not your finances. No credit checks were harmed.</p>
     </footer>
 
-    <noscript><p style="text-align:center;font-weight:700">SKY CRED needs JavaScript to fetch live weather.</p></noscript>
+    <noscript><p style="text-align:center;font-weight:700">SkySignal needs JavaScript to fetch live weather.</p></noscript>
   </main>
 
+  <script src="sky.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
