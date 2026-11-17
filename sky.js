@@ -156,6 +156,7 @@ const Sky = (function () {
     const kind = scene.kind, night = scene.night;
 
     ctx.clearRect(0, 0, W, H);
+    drawTint();
     if (night && kind !== 'fog') drawStars();
     if (night && kind !== 'fog') drawShooting(dt);
     if (!night && (kind === 'clear' || kind === 'partly')) drawSun(kind === 'partly' ? 0.85 : 1);
@@ -169,6 +170,21 @@ const Sky = (function () {
   }
 
   /* ---------- layers ---------- */
+
+  /* Weather tint: darkens/washes the sky gradient so rain, snow, thunder
+     and fog read clearly even when a warm season palette is active. */
+  function drawTint() {
+    const tints = {
+      rain: 'rgba(20, 40, 62, 0.42)',
+      thunder: 'rgba(30, 22, 52, 0.5)',
+      snow: 'rgba(190, 215, 240, 0.18)',
+      fog: 'rgba(205, 210, 215, 0.22)',
+    };
+    const tint = tints[scene.kind];
+    if (!tint) return;
+    ctx.fillStyle = tint;
+    ctx.fillRect(0, 0, W, H);
+  }
 
   function drawStars() {
     const base = { clear: 1, partly: 0.8, clouds: 0.4, rain: 0.18, snow: 0.18, thunder: 0.12 }[scene.kind] || 0.3;
